@@ -1,11 +1,8 @@
-const express = require("express");
-
-const handleCreateSession = require('../controllers/sessioncontroller');
-const { authenticateToken }= require('../middleware/auth');
+const express = require('express');
 const router = express.Router();
+const { createSession, getSessionByCode } = require('../controllers/sessioncontroller');
 
-
-// console.log('✅ Imported handleCreateSession:', handleCreateSession);
-router.post('/create-link', authenticateToken, handleCreateSession);
+router.post('/create', createSession);
+router.get('/:code', getSessionByCode);
 
 module.exports = router;
