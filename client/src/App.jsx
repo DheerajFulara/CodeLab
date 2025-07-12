@@ -1,38 +1,20 @@
-import { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Auth from "./pages/Auth";
-import Home from "./pages/Home";
-import Profile from "./pages/Profile";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import FrontPage from "./components/FrontPage";
+import AuthForm from "./components/AuthForm";
+import Home from "./components/Home";
+import Room from "./components/Room";
 
-export default function App() {
-  const [user, setUser] = useState(null);
-
-  const handleLogin = (userData) => {
-    setUser(userData);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem("token");
-  };
-
-  const handleUserUpdate = (updated) => {
-    setUser((prev) => ({ ...prev, ...updated }));
-  };
-
+function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/auth" replace />} />
-        <Route path="/auth" element={<Auth onLogin={handleLogin} />} />
-        <Route path="/home" element={
-          user ? <Home user={user} onLogout={handleLogout} /> : <Navigate to="/auth" replace />
-        } />
-        <Route path="/profile" element={
-          user ? <Profile user={user} onUpdateProfile={handleUserUpdate} /> : <Navigate to="/auth" replace />
-        } />
-        <Route path="*" element={<Navigate to="/auth" replace />} />
+        <Route path="/" element={<FrontPage />} />
+        <Route path="/auth" element={<AuthForm />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/room/:id" element={<Room />} />
       </Routes>
     </BrowserRouter>
   );
 }
+
+export default App;

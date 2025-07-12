@@ -1,19 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Home({ user, onLogout }) {
+export default function Home() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      navigate("/auth?mode=login");
+    } else {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [navigate]);
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white text-emerald-600 text-xl">
+        Loading...
+      </div>
+    );
+  }
+
+  // Existing Home UI starts here:
+
   const [showMenu, setShowMenu] = useState(false);
   const [showCreateOptions, setShowCreateOptions] = useState(false);
   const [joinCode, setJoinCode] = useState("");
-  const [showCodeModal, setShowCodeModal] = useState(false);
-  const [generatedCode, setGeneratedCode] = useState("");
-
-  const navigate = useNavigate();
 
   const handleProfileClick = () => setShowMenu(!showMenu);
 
   const handleUpdateProfile = () => {
-    navigate("/profile");
+    alert("Profile page not implemented yet!");
     setShowMenu(false);
   };
 
@@ -27,8 +45,7 @@ export default function Home({ user, onLogout }) {
 
   const handleCreateLater = () => {
     const code = generateCode();
-    setGeneratedCode(code);
-    setShowCodeModal(true);
+    alert(`Your new CodeLab session code (save it to share later): ${code}`);
     setShowCreateOptions(false);
   };
 
@@ -47,8 +64,9 @@ export default function Home({ user, onLogout }) {
   };
 
   const handleLogoutClick = () => {
-    onLogout();
-    navigate("/auth");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
   };
 
   const getInitial = () => {
@@ -59,14 +77,17 @@ export default function Home({ user, onLogout }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-emerald-50 flex flex-col relative">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-emerald-50 flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
         <div className="text-2xl font-bold text-emerald-500">CodeLab</div>
 
         <div className="flex items-center space-x-4">
           <div className="relative inline-block text-left">
-            <div onClick={handleProfileClick} className="cursor-pointer select-none">
+            <div
+              onClick={handleProfileClick}
+              className="cursor-pointer select-none"
+            >
               <div className="w-10 h-10 rounded-full bg-white border border-emerald-500 flex items-center justify-center font-bold text-lg shadow-md uppercase text-emerald-600">
                 {getInitial()}
               </div>
@@ -101,7 +122,6 @@ export default function Home({ user, onLogout }) {
         </p>
 
         <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 relative">
-          {/* New session button with dropdown */}
           <div className="relative">
             <button
               onClick={handleCreateMeet}
@@ -128,7 +148,6 @@ export default function Home({ user, onLogout }) {
             )}
           </div>
 
-          {/* Join session input and button */}
           <input
             type="text"
             value={joinCode}
@@ -144,36 +163,6 @@ export default function Home({ user, onLogout }) {
           </button>
         </div>
       </main>
-
-      {/* Modal for Generated Link */}
-      {showCodeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30">
-          <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center">
-            <h2 className="text-2xl font-bold text-emerald-600 mb-4">Here's your joining info</h2>
-            <p className="text-gray-700 mb-4">
-              Send this link to people you want to meet with. Be sure to save it so you can use it later, too.
-            </p>
-            <div className="bg-gray-100 border border-gray-300 rounded px-4 py-2 mb-4 break-all text-emerald-700 font-mono">
-              {`${window.location.origin}/room/${generatedCode}`}
-            </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(`${window.location.origin}/room/${generatedCode}`);
-                alert("Link copied to clipboard!");
-              }}
-              className="px-4 py-2 bg-emerald-500 text-white rounded-full shadow hover:bg-emerald-600 transition mb-2"
-            >
-              Copy Link
-            </button>
-            <button
-              onClick={() => setShowCodeModal(false)}
-              className="block w-full mt-2 text-sm text-gray-600 hover:text-emerald-500"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
